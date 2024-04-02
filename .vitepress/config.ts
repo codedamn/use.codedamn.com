@@ -98,6 +98,10 @@ export default defineConfig({
 						link: '/docs/technologies/react'
 					},
 					{
+						text: 'Vue.js',
+						link: '/docs/technologies/vue'
+					},
+					{
 						text: 'Node.js',
 						link: '/docs/technologies/node'
 					},
