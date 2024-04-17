@@ -21,7 +21,11 @@ Supported technologies (as visible on the left sidebar menu):
 
 -   [HTML/CSS](/docs/technologies/html-css)
 -   [React](/docs/technologies/react)
+-   [Vue](/docs/technologies/vue)
 -   [Node.js](/docs/technologies/node)
 -   [Python](/docs/technologies/python-pytest)
+-   [SQL (SQLite)](/docs/technologies/sqlite)
+-   [Go](/docs/technologies/go)
 -   [Solidity](/docs/technologies/solidity-hardhat)
 -   [Java](/docs/technologies/java-junit)
+-   [AWS Labs](/docs/technologies/aws)
