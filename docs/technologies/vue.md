@@ -121,14 +121,14 @@ set -e 1
 
 # Install vitest and testing util
 cd /home/damner/code
-yarn add vitest@0.29.7 jsdom@21.1.1 @vue/test-utils@2.3.2 --dev
-mkdir -p /home/damner/code/__labtests
+bun add vitest@0.29.7 jsdom@21.1.1 @vue/test-utils@2.3.2 --dev
+mkdir -p /home/damner/code/.labtests
  
 # Move test file
-mv $TEST_FILE_NAME /home/damner/code/__labtests/all.test.js
+mv $TEST_FILE_NAME /home/damner/code/.labtests/all.test.js
 
 # vitest config file
-cat > /home/damner/code/__labtests/config.js << EOF
+cat > /home/damner/code/.labtests/config.js << EOF
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 
@@ -144,19 +144,19 @@ export default defineConfig({
 EOF
 
 # process.js file
-cat > /home/damner/code/__labtests/process.js << EOF
+cat > /home/damner/code/.labtests/process.js << EOF
 import fs from 'fs'
-const payload = JSON.parse(fs.readFileSync('./__labtests/payload.json'));
+const payload = JSON.parse(fs.readFileSync('./.labtests/payload.json'));
 const answers = payload.testResults[0].assertionResults.map(test => test.status === 'passed')
 fs.writeFileSync(process.env.UNIT_TEST_OUTPUT_FILE, JSON.stringify(answers))
-fs.rmdirSync('./__labtests', { recursive: true, force: true })
+fs.rmdirSync('./.labtests', { recursive: true, force: true })
 EOF
 
 # run test
-yarn vitest run --config=/home/damner/code/__labtests/config.js --threads=false --reporter=json --outputFile=/home/damner/code/__labtests/payload.json || true
+bun vitest run --config=/home/damner/code/.labtests/config.js --threads=false --reporter=json --outputFile=/home/damner/code/.labtests/payload.json || true
 
 # Write results to UNIT_TEST_OUTPUT_FILE to communicate to frontend
-node /home/damner/code/__labtests/process.js
+node /home/damner/code/.labtests/process.js
 ```
 
 You might need to have a little understanding of bash scripting. Let us understand how the evaluation bash script is working:
@@ -164,8 +164,8 @@ You might need to have a little understanding of bash scripting. Let us understa
 -   With `set -e 1` we effectively say that the script should stop on any errors
 -   We then navigate to user default directory `/home/damner/code` and then install the required NPM packages. Note that this assumes we already have `vite` installed. If you're using a different vue setup (like `create-vue`), you might have to install `vite` as well.
 -   You can install additional packages here if you want. They would only be installed the first time user runs the test. On subsequent runs, it can reuse the installed packages (since they are not removed at the end of testing)
--   Then we create a `__labtests` folder inside of the `/home/damner/code` user code directory. Note that `__labtests` is a special folder that can be used to place your test code. This folder will not be visible in the file explorer user sees, and the files placed in this folder are not "backed up to cloud" for user.
--   We move the test file you wrote earlier (in last step) to `/home/damner/code/__labtests/all.test.js`.
+-   Then we create a `.labtests` folder inside of the `/home/damner/code` user code directory. Note that `.labtests` is a special folder that can be used to place your test code. This folder will not be visible in the file explorer user sees, and the files placed in this folder are not "backed up to cloud" for user.
+-   We move the test file you wrote earlier (in last step) to `/home/damner/code/.labtests/all.test.js`.
 -   We then also create a custom vite config file as `config.js`. This is because we don't want to override your (or users') custom `vite.config.js` file if present. This file only loads `jsdom` and marks the `globals: true` hence importing `describe`, `test`, etc. automatically available without importing. More information about the configuration can be found here in [vitest docs](https://vitest.dev/config/#globals).
 -   We then create a `process.js` file that can be used to process our results into a single file of boolean values. This is important because on the playground page, the way challenges work, is that they get green or red based on a JSON boolean array written inside the file in environment variable: `$UNIT_TEST_OUTPUT_FILE`
 -   For example, once the test run succeeds, and if you write `[true,false,true,true]` inside `$UNIT_TEST_OUTPUT_FILE`, it would reflect as PASS, FAIL, PASS for 3 challenges available inside codedamn playground UI (as shown below)
